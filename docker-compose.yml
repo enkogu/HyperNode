@@ -1,0 +1,91 @@
+version: "3.7"
+services:
+
+  ## Chains
+
+  tron-nile:
+    build: dist/tron-nile
+    volumes:
+      - ./data/tron-nile/output-directory:/opt/tron/output-directory
+
+  tron-mainnet:
+    build: dist/tron-mainnet
+    volumes:
+      - ./data/tron-mainnet/output-directory:/opt/tron/output-directory
+
+  ethereum-mainnet:
+    build: ./dist/ethereum-mainnet
+    volumes:
+      - ./data/ethereum-mainnet:/home/openethereum/.local/share/io.parity.ethereum
+
+  ethereum-rinkeby:
+    build: ./dist/ethereum-rinkeby
+    volumes:
+      - ./data/ethereum-rinkeby:/home/openethereum/.local/share/io.parity.ethereum
+
+  btc-mainnet:
+    build: ./dist/btc-mainnet
+    volumes:
+      - ./data/btc-mainnet:/root/.bitcoin
+
+  btc-testnet:
+    build: ./dist/btc-testnet
+    volumes:
+      - ./data/btc-testnet:/root/.bitcoin
+
+  ## K-22 services
+  bitcore-node:
+    build: ./dist/bitcore-node
+    depends_on:
+      - mongo-bitcore-node
+      - btc-mainnet
+      - btc-testnet
+    ports:
+      - 127.0.0.1:8100:8100
+      - 127.0.0.1:3000:3000
+    environment:
+      - DB_HOST=mongo-bitcore-node
+
+  mongo-bitcore-node:
+    image: mongo:3.4-jessie
+    volumes:
+      - ./data/mongo-bitcore-node:/data/db
+
+  tron-tx-watcher-mainnet:
+    build: dist/tron-tx-watcher-mainnet
+    depends_on:
+      - mongo-tron-tx-watcher
+
+  tron-tx-watcher-nile:
+    build: dist/tron-tx-watcher-nile
+    depends_on:
+      - mongo-tron-tx-watcher
+
+  mongo-tron-tx-watcher:
+    image: mongo:4
+    volumes:
+      - ./data/mongo-tron-tx-watcher:/data/db
+
+  worker:
+    build: ./dist/worker
+    environment:
+      MONGO_URL: mongodb://mongo-worker:27017
+    depends_on:
+      - mongo-worker
+      - tron-nile
+      - tron-mainnet
+      - tron-tx-watcher-mainnet
+      - tron-tx-watcher-nile
+      - ethereum-mainnet
+      - ethereum-rinkeby
+      - bitcore-node
+      - btc-mainnet
+      - btc-testnet
+    ports:
+      - "5000:5000"
+
+  mongo-worker:
+    image: mongo:4
+    volumes:
+      - ./data/mongo-worker:/data/db
+

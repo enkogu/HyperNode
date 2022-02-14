@@ -1,0 +1,48 @@
+{
+    "bitcoreNode": {
+        "modules": [
+            "./bitcoin"
+        ],
+        "services": {
+            "api": {
+                "wallets": {
+                    "allowCreationBeforeCompleteSync": true
+                }
+            }
+        },
+        "chains": {
+            "BTC": {
+                "mainnet": {
+                    "chainSource": "p2p",
+                    "trustedPeers": [
+                        {
+                            "host": "btc-mainnet",
+                            "port": 8333
+                        }
+                    ],
+                    "rpc": {
+                        "host": "btc-mainnet",
+                        "port": 8332,
+                        "username": "user",
+                        "password": "password"
+                    }
+                },
+                "testnet": {
+                    "chainSource": "p2p",
+                    "trustedPeers": [
+                        {
+                            "host": "btc-testnet",
+                            "port": 18333
+                        }
+                    ],
+                    "rpc": {
+                        "host": "btc-testnet",
+                        "port": 18332,
+                        "username": "user",
+                        "password": "password"
+                    }
+                }
+            }
+        }
+    }
+}
